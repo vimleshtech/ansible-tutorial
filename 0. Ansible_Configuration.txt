@@ -1,0 +1,247 @@
+Ansible multiple nodes configuration(User and Passwordless configuration)
+=========================================================================
+
+
+Step 1:
+	Launch 3 ubuntu or redhat instances (2 instance mandatory,1 optional)
+
+	Note: Following port should be enabled
+	
+	SSH	22
+	HTTP	80
+	HTTPS	443
+	CUSTOM	8080
+
+
+ Ansible Controller =========================================
+=========================================================================================================
+Step 2:
+	Connect 1 instance which you want to make "Ansible Controller" 
+
+Step 3:
+	Create new user
+
+	$sudo adduser ansible
+
+		..enter name , and password , rest details are optional
+		..
+	
+Step 4:
+	Edit "sshd_config" file
+
+
+	$cd /etc/ssh
+	$sudo nano sshd_config
+	
+		
+		Note : modify below statement to "yes" (these should be uncommented)
+	
+	PasswordAuthentication yes
+	PermitRootLogin yes
+
+
+
+
+	--then save the file : ctrl+x    , and y
+Step 5:
+	Restart the sshd service
+
+	$sudo systemctl restart sshd
+
+
+Step 6:
+	Edit "sudores" file
+
+
+	$sudo usermod -aG sudo ansible
+	$cd /etc/
+	$sudo nano sudoers
+	
+	Note : add below statement/line
+	     : there is tab(not space) after ansible and ALL=(ALL), however this is space after NOPASSWD: 	
+
+
+	ansible	ALL=(ALL)	NOPASSWD: ALL
+
+	
+	
+	--then save the file : ctrl+x , and y
+
+Step 7:
+	again  open  and close the file just to ensure configuration is completed correctly 
+
+	$sudo nano sudoers 
+
+
+Step 8:
+	Switch user 
+
+	$su - ansible
+
+Step 9:
+	Update index
+
+	$sudo apt-get update
+	
+
+Step 10:
+	Install python
+
+	$sudo apt-get install python
+
+Step 11:
+	Generate ssh key
+
+	$ssh-keygen 
+
+
+============= Ansible Node (this steps required for all node sever) =====================================
+=========================================================================================================
+
+Step 12:
+	Connect node server
+
+Step 13:
+	Create user with same (so login/user id is not required in ansible hosts file)
+
+	$sudo adduser ansible
+
+		..enter name , and password , rest details are optional
+		..
+	
+Step 14:
+	Edit "sshd_config" file
+
+
+	$cd /etc/ssh
+	$sudo nano sshd_config
+	
+		
+		Note : modify below statement to "yes" (these should be uncommented)
+	
+	PasswordAuthentication yes
+	PermitRootLogin yes
+
+
+
+
+	--then save the file : ctrl+x    , and y
+Step 15:
+	Restart the sshd service
+
+	$sudo systemctl restart sshd
+
+
+Step 16:
+	Edit "sudores" file
+
+
+	$sudo usermod -aG sudo ansible
+	$cd /etc/
+	$sudo nano sudoers
+	
+	Note : add below statement/line
+	     : there is tab(not space) after ansible and ALL=(ALL), however this is space after NOPASSWD: 	
+
+
+	ansible	ALL=(ALL)	NOPASSWD: ALL
+
+	
+	
+	--then save the file : ctrl+x , and y
+
+Step 17:
+	again  open  and close the file just to ensure configuration is completed correctly 
+
+	$sudo nano sudoers 
+
+
+Step 18:
+	Switch user 
+
+	$su - ansible
+
+Step 19:
+	Update index
+
+	$sudo apt-get update
+	
+
+Step 20:
+	Install python
+
+	$sudo apt-get install python
+
+Step 21:
+	Generate ssh key
+
+	$ssh-keygen 
+
+==== Now copy "Ansible Controller" ssh key to all nodes , and all nodes ssh key to "Ansible Controller"===
+===============================================================================================================
+
+Step 22:
+	Open/Connect to Ansible Controller and switch to "ansible user"
+
+	$cd /home/ansible/.ssh
+	$ssh-copy-id <ip_of_node1>
+	$ssh-copy-id <ip_of_node1>
+	.....................
+	Note : this copy Ansible Controller  ssh key  to Node server 
+
+Step 23:
+	Open/Connect to Node server (one by one if you have multiple nodes) and switch to "ansible user"
+
+	
+	$cd /home/ansible/.ssh
+	$ssh-copy-id <ip_of_ansible_controller_ip>
+
+
+==== Now  install "ansible" on "Ansible Controller" ===========================================================
+===============================================================================================================
+Step 24:
+	Open/Connect to Ansible Controller and switch to "ansible user"
+
+	$sudo apt-get update
+	$sudo apt-get install ansible
+
+	
+Step 25:
+	Edit "ansible.cfg" file
+
+	$cd /etc/ansible
+
+	$sudo nano ansible.cfg
+	
+		Note : uncomment below statement/line
+
+	inventory	= /etc/ansible/hosts
+
+
+Step 26:
+	Edito "hosts" file and add ip of node server
+
+	$cd /etc/ansible
+	$sudo nano hosts
+	
+
+	[webservers]
+	node1_ip
+	node2_ip
+	
+		 
+Step 27:
+	Check the ping
+
+	$ansible webserves -m ping
+	or
+	$ansible all -m ping
+
+	
+		
+	
+
+
+
+	
+		
